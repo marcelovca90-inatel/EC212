@@ -1,41 +1,53 @@
-registro Cor { int R; int G; int B };
+// tipos das estruturas de dados
+registro Cor { int r, int g, int b, int a }
 registro Pixel { int x, int y, int z, Cor cor }
-registro Poligono { Pixel[] pixels; }
-registro Imagem { Poligono[] poligonos; }
+registro Poligono { Pixel[] pixels }
+registro Imagem { Poligono[] poligonos }
 
-// estruturas de dados globais
-Buffer = Mapa<[x][y],Pilha<Cor>>
-ZBuffer = Mapa<[x][y],Pilha<Inteiro>>
+// variaveis globais
+Buffer = Matriz[LARGURA][ALTURA] de Lista de Cor
+ZBuffer = Matriz[LARGURA][ALTURA] de Lista de Inteiro
 
-procedimento RemoverPixelsAtras(int z)
-    // se o pixel estiver atrás de z, remova-o
-    para i de 1 até ZBuffer.tamanho
-        se (ZBuffer[i].z > z)
-            Buffer.remove(i)
-            ZBuffer.remove(i)
+procedimento RemoverPixelsAtrasDe(Pixel pix)
+
+    // os pixels da lista que estiverem atras do pixel
+    // passado como parametro deverao ser removidos
+    para i de 0 até ZBuffer[pix.x][pix.y].tamanho()
+        se (ZBuffer[pix.x][pix.y] > pix.z)
+            Buffer[pix.x][pix.y].remover(i)
+            ZBuffer[pix.x][pix.y].remover(i)
+
 fim_procedimento
 
 procedimento ABuffer
 
     // inicializa os buffers de cor e profundidade
-    para cada Pixel em Buffer
-        Buffer[x][y].push(COR_DE_FUNDO);
-        ZBuffer[x][y].push(+INFINITO);
+    para x de 0 até LARGURA
+        para y de 0 até ALTURA
+            Buffer[x][y].inserir(COR_DE_FUNDO)
+            ZBuffer[x][y].inserir(+INFINITO)
 
-    // desenha os poligonosxw
-    para cada Poligono em Imagem.poligonos
-        para cada Pixel em Poligono.pixels
-            Se (Pixel é completamente coberto por polígono e polígono é opaco) então
-                remove_todos_atrás(Pixel.z)
-                Buffer[x][y].push(Pixel.cor)
-                ZBuffer[x][y].push(Pixel.z)
-            Senão Se (Pixel.z < ZBuffer[x][y]) então
-                Buffer[x][y].push(Pixel.cor)
-                ZBuffer[[x][y].push(Pixel.z)
+    // desenha os poligonos
+    para cada Poligono pol em Imagem.poligonos
+        para cada Pixel pix em Poligono.pixels
+            se (pix é completamente coberto por pol e pol é opaco) então
+                RemoverPixelsAtrasDe(pix)
+                Buffer[x][y].inserir(pix.cor)
+                ZBuffer[x][y].inserir(pix.z)
+            senão se (Pixel.z < ZBuffer[x][y]) então
+                Buffer[x][y].inserir(pix.cor)
+                ZBuffer[x][y].inserir(pix.z)
 
     // desenha a imagem
-    para cada Par<[x][y],Pilha<Cor>> em Buffer
-        enquanto Par.Pilha<Cor> não estiver vazia
-            pintar(Par.Pixel, Par.Pilha<Cor>.top())
-            Par.Pilha<Cor>.pop()
+    para x de 0 até LARGURA
+        para y de 0 até ALTURA
+            // computa a cor deste pixel, sendo resultado do
+            // "blending" entre todas as cores nesta posicao,
+            // ponderadas por seus respectivos valores de alfa
+            cores = Buffer[x][y]
+            cor_resultante = blending(cores)
+
+            // pinta o buffer de cores com a cor resultante
+            pintar(x, y cor_resultante)
+
 fim_procedimento
