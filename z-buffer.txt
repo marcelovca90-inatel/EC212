@@ -18,7 +18,7 @@ procedimento ZBuffer
 
     // constroi a imagem
     para cada Poligono pol em Imagem.poligonos
-        para cada Pixel pix em Poligono.pixels
+        para cada Pixel pix em pol.pixels
             se pix.z < ZBuffer[pix.x][pix.y] então
                 Buffer[pix.x][pix.y] = pix.cor
                 ZBuffer[pix.x][pix.y] = pix.z
